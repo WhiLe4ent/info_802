@@ -1,0 +1,12 @@
+type Vehicle {
+    id: ID
+    make: String
+    model: String
+    batteryCapacity: Float
+    bestRange: Int
+    worstRange: Int
+}
+
+type Query {
+    carList: [Vehicle]
+}
