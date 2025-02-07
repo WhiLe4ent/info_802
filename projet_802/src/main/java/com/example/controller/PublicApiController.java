@@ -39,9 +39,33 @@ public class PublicApiController {
 
         // Récupérer les bornes de recharge autour du point de départ
         List<Map<String, Object>> bornes = borneRechargeService.getBornesProches(departLat, departLon, 5000);
+        
+        for (Map<String, Object> borne : bornes) {
+            Map<String, Object> fields = (Map<String, Object>) borne.get("fields");
+            
+            if (fields != null) {
+                // Si les coordonnées existent déjà dans geo_point_borne, on les met dans coordonnees
+                if (fields.containsKey("geo_point_borne")) {
+                    fields.put("coordonnees", fields.get("geo_point_borne"));
+                } 
+                // Si elles existent seulement dans geometry.coordinates, on les transforme
+                else if (borne.containsKey("geometry")) {
+                    Map<String, Object> geometry = (Map<String, Object>) borne.get("geometry");
+                    if (geometry.containsKey("coordinates")) {
+                        List<Double> coords = (List<Double>) geometry.get("coordinates");
+                        if (coords.size() == 2) {
+                            // Inverser l'ordre pour correspondre au format attendu [lat, lon]
+                            fields.put("coordonnees", List.of(coords.get(1), coords.get(0)));
+                        }
+                    }
+                }
+            }
+        }
+        
 
         // Récupérer la liste des véhicules
         List<Vehicle> vehicles = vehicleService.getAllVehicles();
+        System.out.println("📡 Données des bornes reçues de l'API : " + bornes);
 
         // Regrouper les données en un seul objet JSON
         return Map.of(
