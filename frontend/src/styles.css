@@ -38,7 +38,7 @@ html, body, #root {
 /* Positionner le sélecteur de véhicules en bas à gauche */
 .bottom-left {
   position: absolute;
-  bottom: 200px;
+  bottom: 20px;
   left: 20px;
   background: rgba(255, 255, 255, 0.8);
   padding: 10px;
@@ -53,4 +53,89 @@ input, select, button {
   margin: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+/* styles.css */
+.vehicle-selector {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+.vehicle-list-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  margin-right: 10px;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.search-bar select {
+  padding: 5px;
+  font-size: 16px;
+}
+
+.vehicle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 50vh; /* Limiter la hauteur pour permettre le défilement */
+}
+
+.vehicle-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vehicle-card:hover {
+  transform: scale(1.05);
+}
+
+.vehicle-info {
+  text-align: left;
+  flex: 1;
+}
+
+.vehicle-info h3 {
+  margin: 5px 0;
+}
+
+.vehicle-detail {
+  text-align: center;
+  margin-left: 20px;
+  flex: 1;
+}
+
+.vehicle-detail img {
+  max-width: 60%;
+  height: auto;
+  margin: 20px 0;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 10px;
+  margin: 0 5px;
+  cursor: pointer;
 }

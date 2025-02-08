@@ -7,6 +7,7 @@ type Vehicle {
   naming: Naming
   battery: Battery
   range: Range
+  media: Media
 }
 
 type Naming {
@@ -26,4 +27,12 @@ type Range {
 type ChargetripRange {
   best: Float
   worst: Float
+}
+
+type Media {
+  image: Image
+}
+
+type Image {
+  thumbnail_url: String
 }

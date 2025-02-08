@@ -2,6 +2,8 @@ package com.example.service;
 
 import com.example.model.Vehicle;
 import com.example.model.Vehicle.Battery;
+import com.example.model.Vehicle.Image;
+import com.example.model.Vehicle.Media;
 import com.example.model.Vehicle.Naming;
 import com.example.model.Vehicle.Range;
 import com.example.response.VehicleResponse;
@@ -59,7 +61,7 @@ public class VehicleService {
                 }
             }
         """;
-
+    
         // Définir les variables GraphQL
         String requestBody = """
             {
@@ -71,24 +73,24 @@ public class VehicleService {
                 }
             }
         """.formatted(query.replace("\n", " "), page, size, search != null ? search : "");
-
+    
         System.out.println("📡 Requête envoyée à Chargetrip : " + requestBody);
-
+    
         try {
-            // Envoi de la requête GraphQL avec WebClient
-            String jsonResponse = webClient.post()
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            clientResponse -> {
-                                System.err.println("❌ Erreur API Chargetrip : " + clientResponse.statusCode());
-                                return Mono.error(new RuntimeException("Erreur API Chargetrip : " + clientResponse.statusCode()));
-                            })
-                    .bodyToMono(String.class)
-                    .block();
-
-            System.out.println("📡 Réponse brute de Chargetrip : " + jsonResponse);
-
+            // // Envoi de la requête GraphQL avec WebClient
+            // String jsonResponse = webClient.post()
+            //         .bodyValue(requestBody)
+            //         .retrieve()
+            //         .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+            //                 clientResponse -> {
+            //                     System.err.println("❌ Erreur API Chargetrip : " + clientResponse.statusCode());
+            //                     return Mono.error(new RuntimeException("Erreur API Chargetrip : " + clientResponse.statusCode()));
+            //                 })
+            //         .bodyToMono(String.class)
+            //         .block();
+    
+            // System.out.println("📡 Réponse brute de Chargetrip : " + jsonResponse);
+    
             // Désérialisation de la réponse
             VehicleResponse response = webClient.post()
                     .bodyValue(requestBody)
@@ -99,24 +101,33 @@ public class VehicleService {
             if (response != null && response.getData() != null) {
                 return response.getData().getVehicleList().stream()
                         .map(car -> {
-                            Naming naming = new Naming(car.getNaming().getMake(), car.getNaming().getModel(), null); // Remplacer "null" par la version si nécessaire
+                            Naming naming = new Naming(car.getNaming().getMake(), car.getNaming().getModel(), null);
                             Battery battery = new Battery(car.getBattery().getUsable_kwh());
                             Range range = new Range(new Range.ChargetripRange(car.getRange().getChargetrip_range().getBest(),
                                     car.getRange().getChargetrip_range().getWorst()));
-                            return new Vehicle(car.getId(), naming, null, battery, range); // Ici, media est null
+            
+                            Image image = new Image();
+                            image.setThumbnail_url("default-image.jpg");
+                            Media mediaDefault = new Media();
+                            mediaDefault.setImage(image);
+
+                            Media media = (car.getMedia() != null && car.getMedia().getImage() != null && car.getMedia().getImage().getThumbnail_url() != null) 
+                            ? car.getMedia() 
+                            : mediaDefault;
+                            System.out.println("🖼️ Image URL : " + media.getImage().getThumbnail_url());
+                            
+                                    
+                            return new Vehicle(car.getId(), naming, media, battery, range);
                         })
                         .collect(Collectors.toList());
             }
-            else {
-                System.err.println("⚠️ Aucune donnée reçue de Chargetrip.");
-            }
-
         } catch (WebClientResponseException e) {
             System.err.println("❌ Erreur WebClient lors de la récupération des véhicules : " + e.getResponseBodyAsString());
         } catch (Exception e) {
             System.err.println("❌ Erreur inattendue : " + e.getMessage());
         }
-
+    
         return List.of(); // Retourne une liste vide en cas d’erreur
     }
+    
 }

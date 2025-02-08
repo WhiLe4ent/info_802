@@ -1,9 +1,13 @@
 package com.example.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import org.checkerframework.checker.units.qual.N;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -19,7 +23,7 @@ public class Vehicle {
     public Vehicle(String id, Naming naming, Media media, Battery battery, Range range) {
         this.id = id;
         this.naming = naming;
-        this.media = media;
+        this.media = media; 
         this.battery = battery;
         this.range = range;
     }
@@ -44,17 +48,23 @@ public class Vehicle {
         }
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Getter
     @Setter
     public static class Media {
         private Image image;
-
-        @Getter
-        @Setter
-        public static class Image {
-            private String thumbnail_url;
-        }
     }
+    
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class Image {
+        @JsonProperty("thumbnail_url")
+        private String thumbnail_url;
+    }
+
 
     @Getter
     @Setter

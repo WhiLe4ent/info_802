@@ -18,7 +18,7 @@ export async function getTrajet(depart, arrivee, vehicleId) {
 
 
 export async function fetchVehicles(page = 0, size = 10, search = '') {
-  const query = "query GetVehicles($page: Int!, $size: Int!, $search: String) { carList(page: $page, size: $size, search: $search) { id naming { make model } battery { usable_kwh } range { chargetrip_range { best worst } } } }";
+  const query = "query GetVehicles($page: Int!, $size: Int!, $search: String) { carList(page: $page, size: $size, search: $search) { id naming { make model } media { image { thumbnail_url } }battery { usable_kwh } range { chargetrip_range { best worst } } } }";
 
   const variables = {
     page,
@@ -39,6 +39,7 @@ export async function fetchVehicles(page = 0, size = 10, search = '') {
     });
 
     const { data } = await response.json();
+    console.log('🚗 Véhicules récupérés:', data.carList);
     return data.carList || [];
   } catch (error) {
     console.error('Erreur lors de la récupération des véhicules:', error);

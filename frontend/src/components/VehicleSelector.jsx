@@ -1,12 +1,15 @@
+// VehicleSelector.js
 import React, { useState, useEffect } from 'react';
-import { fetchVehicles } from '../api/api';  // Assurez-vous d'importer la fonction fetchVehicles
+import { fetchVehicles } from '../api/api';
+import VehicleCard from './VehicleCard';
 
 function VehicleSelector({ onSelect }) {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0); // Page par défaut
-  const [size, setSize] = useState(10); // Taille de page par défaut
-  const [search, setSearch] = useState(''); // Recherche par défaut
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [search, setSearch] = useState('');
+  const [selectedVehicle, setSelectedVehicle] = useState(null); // Pour gérer la vue détaillée
 
   useEffect(() => {
     async function loadVehicles() {
@@ -17,11 +20,11 @@ function VehicleSelector({ onSelect }) {
     }
 
     loadVehicles();
-  }, [page, size, search]); // Recharger les véhicules à chaque modification des paramètres
+  }, [page, size, search]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
-    setPage(0); // Réinitialiser la page à 0 chaque fois que la recherche change
+    setPage(0); // Réinitialiser la page à 0
   };
 
   const handlePageChange = (newPage) => {
@@ -32,47 +35,64 @@ function VehicleSelector({ onSelect }) {
     setSize(newSize);
   };
 
-  return (
-    <div>
-      <div>
-        <label>Recherche :</label>
-        <input
-          type="text"
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Recherche de véhicule"
-        />
-      </div>
-      <div>
-        <label>Taille de page :</label>
-        <select value={size} onChange={(e) => handleSizeChange(Number(e.target.value))}>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
-      </div>
-      <div>
-        <label>Page :</label>
-        <button onClick={() => handlePageChange(page - 1)} disabled={page <= 0}>Précédent</button>
-        <span>{page + 1}</span>
-        <button onClick={() => handlePageChange(page + 1)}>Suivant</button>
-      </div>
+  const handleVehicleSelect = (vehicle) => {
+    setSelectedVehicle(vehicle); // Afficher le véhicule sélectionné
+  };
 
-      {loading ? (
-        <p>Chargement...</p>
-      ) : (
-        <div>
-          <label>Choisissez un véhicule :</label>
-          <select onChange={(e) => onSelect(e.target.value)}>
-            <option value="">-- Sélectionnez --</option>
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.naming.make} {vehicle.naming.model} - ⚡ {vehicle.battery.usable_kwh} kWh
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+  const handleBackToList = () => {
+    setSelectedVehicle(null); // Revenir à la liste
+  };
+
+  return (
+    <div className="vehicle-selector">
+      <div className="vehicle-list-container">
+        {/* Si un véhicule est sélectionné, on affiche le détail, sinon on affiche la liste */}
+        {selectedVehicle ? (
+          <div className="vehicle-detail">
+            <button onClick={handleBackToList}>Retour à la liste</button>
+            <h2>{selectedVehicle.naming.make} {selectedVehicle.naming.model}</h2>
+            <img src={selectedVehicle.media?.image?.thumbnail_url || 'default-image.jpg'} alt="Vehicle" />
+            <p>Batterie: {selectedVehicle.battery.usable_kwh} kWh</p>
+            <p>Autonomie: {selectedVehicle.range.chargetrip_range.best} km - {selectedVehicle.range.chargetrip_range.worst} km</p>
+          </div>
+        ) : (
+          <>
+            <div className="search-bar">
+              <input
+                type="text"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Recherche de véhicule"
+              />
+              <select value={size} onChange={(e) => handleSizeChange(Number(e.target.value))}>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+
+            {loading ? (
+              <p>Chargement...</p>
+            ) : (
+              <div className="vehicle-list">
+                {vehicles.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    onClick={handleVehicleSelect}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="pagination">
+              <button onClick={() => handlePageChange(page - 1)} disabled={page <= 0}>Précédent</button>
+              <span>{page + 1}</span>
+              <button onClick={() => handlePageChange(page + 1)}>Suivant</button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
