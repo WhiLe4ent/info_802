@@ -1,12 +1,29 @@
-type Vehicle {
-    id: ID
-    make: String
-    model: String
-    batteryCapacity: Float
-    bestRange: Int
-    worstRange: Int
+type Query {
+  carList(page: Int!, size: Int!, search: String): [Vehicle]
 }
 
-type Query {
-    carList: [Vehicle]
+type Vehicle {
+  id: String
+  naming: Naming
+  battery: Battery
+  range: Range
+}
+
+type Naming {
+  make: String
+  model: String
+  chargetrip_version: String
+}
+
+type Battery {
+  usable_kwh: Float
+}
+
+type Range {
+  chargetrip_range: ChargetripRange
+}
+
+type ChargetripRange {
+  best: Float
+  worst: Float
 }

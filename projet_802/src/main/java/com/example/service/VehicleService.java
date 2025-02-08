@@ -1,7 +1,11 @@
 package com.example.service;
 
 import com.example.model.Vehicle;
+import com.example.model.Vehicle.Battery;
+import com.example.model.Vehicle.Naming;
+import com.example.model.Vehicle.Range;
 import com.example.response.VehicleResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -15,40 +19,64 @@ public class VehicleService {
 
     private static final String CHARGETRIP_API_URL = "https://api.chargetrip.io/graphql";
 
-    private static final String CLIENT_ID = "678a18d96f014f34da84461e";
-    private static final String APP_ID = "678a18d96f014f34da844620";
-
     private final WebClient webClient;
 
-    public VehicleService() {
-        this.webClient = WebClient.builder()
+    @Autowired
+    public VehicleService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder
                 .baseUrl(CHARGETRIP_API_URL)
-                .defaultHeader("x-client-id", CLIENT_ID)
-                .defaultHeader("x-app-id", APP_ID)
-                .defaultHeader("Content-Type", "application/json") // Assure que le type est bien défini
+                .defaultHeader("x-client-id", "678a18d96f014f34da84461e")
+                .defaultHeader("x-app-id", "678a18d96f014f34da844620")
+                .defaultHeader("Content-Type", "application/json")
                 .build();
     }
 
-    public List<Vehicle> getAllVehicles() {
-        // Requête GraphQL sous forme JSON bien formatée
+    public List<Vehicle> getAllVehicles(int page, int size, String search) {
+        // Requête GraphQL avec des variables
         String query = """
-            {
-                carList {
+            query vehicleList($page: Int, $size: Int, $search: String) {
+                vehicleList(page: $page, size: $size, search: $search) {
                     id
-                    naming { make model }
-                    battery { usable_kwh }
-                    range { chargetrip_range { best worst } }
+                    naming {
+                        make
+                        model
+                        chargetrip_version
+                    }
+                    media {
+                        image {
+                            thumbnail_url
+                        }
+                    }
+                    battery {
+                        usable_kwh
+                    }
+                    range {
+                        chargetrip_range {
+                            best
+                            worst
+                        }
+                    }
                 }
             }
         """;
 
-        // Conversion de la requête en JSON brut
-        String requestBody = String.format("{\"query\": \"%s\"}", query.replace("\n", " ").replace("\"", "\\\""));
-        System.out.println("📡 Requête envoyée à Chargetrip : " + requestBody); // Log pour debug
+        // Définir les variables GraphQL
+        String requestBody = """
+            {
+                "query": "%s",
+                "variables": {
+                    "page": %d,
+                    "size": %d,
+                    "search": "%s"
+                }
+            }
+        """.formatted(query.replace("\n", " "), page, size, search != null ? search : "");
+
+        System.out.println("📡 Requête envoyée à Chargetrip : " + requestBody);
 
         try {
-            // Récupération des données de Chargetrip
-            VehicleResponse response = webClient.post()
+            // Envoi de la requête GraphQL avec WebClient
+            String jsonResponse = webClient.post()
                     .bodyValue(requestBody)
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
@@ -56,21 +84,30 @@ public class VehicleService {
                                 System.err.println("❌ Erreur API Chargetrip : " + clientResponse.statusCode());
                                 return Mono.error(new RuntimeException("Erreur API Chargetrip : " + clientResponse.statusCode()));
                             })
+                    .bodyToMono(String.class)
+                    .block();
+
+            System.out.println("📡 Réponse brute de Chargetrip : " + jsonResponse);
+
+            // Désérialisation de la réponse
+            VehicleResponse response = webClient.post()
+                    .bodyValue(requestBody)
+                    .retrieve()
                     .bodyToMono(VehicleResponse.class)
                     .block();
 
             if (response != null && response.getData() != null) {
-                return response.getData().getCarList().stream()
-                        .map(car -> new Vehicle(
-                                car.getId(),
-                                car.getNaming().getMake(),
-                                car.getNaming().getModel(),
-                                car.getBattery().getUsableKwh(),
-                                car.getRange().getChargetripRange().getBest(),
-                                car.getRange().getChargetripRange().getWorst()
-                        ))
+                return response.getData().getVehicleList().stream()
+                        .map(car -> {
+                            Naming naming = new Naming(car.getNaming().getMake(), car.getNaming().getModel(), null); // Remplacer "null" par la version si nécessaire
+                            Battery battery = new Battery(car.getBattery().getUsable_kwh());
+                            Range range = new Range(new Range.ChargetripRange(car.getRange().getChargetrip_range().getBest(),
+                                    car.getRange().getChargetrip_range().getWorst()));
+                            return new Vehicle(car.getId(), naming, null, battery, range); // Ici, media est null
+                        })
                         .collect(Collectors.toList());
-            } else {
+            }
+            else {
                 System.err.println("⚠️ Aucune donnée reçue de Chargetrip.");
             }
 
@@ -80,6 +117,6 @@ public class VehicleService {
             System.err.println("❌ Erreur inattendue : " + e.getMessage());
         }
 
-        return List.of(); // Retourne une liste vide si l’API échoue
+        return List.of(); // Retourne une liste vide en cas d’erreur
     }
 }
