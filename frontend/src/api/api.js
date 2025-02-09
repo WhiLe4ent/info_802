@@ -2,7 +2,7 @@ const API_URL = "http://localhost:8080";
 
 export async function getTrajet(depart, arrivee, vehicleId) {
   try {
-    const response = await fetch(`${API_URL}/api/trajet`, {
+    const response = await fetch(`${API_URL}/itineraire`, {
       method: "POST", 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ departVille: depart, arriveeVille: arrivee, vehicleId }),

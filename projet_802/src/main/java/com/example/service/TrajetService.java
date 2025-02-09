@@ -7,18 +7,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class TrajetService {
 
+    private static final double VITESSE_MOYENNE = 90.0; // en km/h
+
     public CalculTrajetResponse calculerTrajet(CalculTrajetRequest request) {
         double distance = request.getDistance();
         double autonomie = request.getAutonomie();
         double tempsRecharge = request.getTempsRecharge();
 
-        // Calcul du nombre d'arrêts nécessaires
-        int arrets = (int) Math.ceil(distance / autonomie);
+        // Nombre d'arrêts nécessaires pour recharger (seulement si l'autonomie est dépassée)
+        int arrets = (int) Math.floor(distance / autonomie);
+        double tempsRechargeTotal = arrets * tempsRecharge;
 
-        // Temps de trajet total (temps de recharge + conduite)
-        double tempsTotal = (distance / 100) + (arrets * tempsRecharge);
+        // Temps de conduite en heures
+        double tempsConduite = distance / VITESSE_MOYENNE;
 
-        // Création de la réponse
+        // Temps total (conduite + recharge)
+        double tempsTotal = tempsConduite + (tempsRechargeTotal / 60.0); // Convertir minutes en heures
+
+        // Réponse
         CalculTrajetResponse response = new CalculTrajetResponse();
         response.setTempsTotal(tempsTotal);
         return response;

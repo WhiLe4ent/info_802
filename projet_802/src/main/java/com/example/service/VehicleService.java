@@ -77,18 +77,7 @@ public class VehicleService {
         System.out.println("📡 Requête envoyée à Chargetrip : " + requestBody);
     
         try {
-            // // Envoi de la requête GraphQL avec WebClient
-            // String jsonResponse = webClient.post()
-            //         .bodyValue(requestBody)
-            //         .retrieve()
-            //         .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-            //                 clientResponse -> {
-            //                     System.err.println("❌ Erreur API Chargetrip : " + clientResponse.statusCode());
-            //                     return Mono.error(new RuntimeException("Erreur API Chargetrip : " + clientResponse.statusCode()));
-            //                 })
-            //         .bodyToMono(String.class)
-            //         .block();
-    
+
             // System.out.println("📡 Réponse brute de Chargetrip : " + jsonResponse);
     
             // Désérialisation de la réponse
@@ -113,9 +102,7 @@ public class VehicleService {
 
                             Media media = (car.getMedia() != null && car.getMedia().getImage() != null && car.getMedia().getImage().getThumbnail_url() != null) 
                             ? car.getMedia() 
-                            : mediaDefault;
-                            System.out.println("🖼️ Image URL : " + media.getImage().getThumbnail_url());
-                            
+                            : mediaDefault;                         
                                     
                             return new Vehicle(car.getId(), naming, media, battery, range);
                         })

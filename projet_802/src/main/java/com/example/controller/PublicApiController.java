@@ -31,7 +31,6 @@ public class PublicApiController {
     public ResponseEntity<Map<String, Object>> getTrajet(@RequestBody Map<String, String> request) {
         String departVille = request.get("departVille");
         String arriveeVille = request.get("arriveeVille");
-        String vehicleId = request.get("vehicleId");
     
         if (departVille == null || arriveeVille == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Les champs departVille, arriveeVille et vehicleId sont requis."));

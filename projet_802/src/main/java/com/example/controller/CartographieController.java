@@ -1,9 +1,7 @@
 package com.example.controller;
 
 import com.example.service.CartographieService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -16,11 +14,15 @@ public class CartographieController {
         this.cartographieService = cartographieService;
     }
 
-    @GetMapping("/itineraire")
-    public Map<String, Object> getItineraire(@RequestParam double departLat, 
-                                             @RequestParam double departLon,
-                                             @RequestParam double arriveeLat,
-                                             @RequestParam double arriveeLon) {
-        return cartographieService.getItineraire(departLat, departLon, arriveeLat, arriveeLon);
+    @PostMapping("/itineraire")
+    public Map<String, Object> getItineraire(@RequestBody Map<String, String> request) {
+        String depart = request.get("departVille");
+        String arrivee = request.get("arriveeVille");
+
+        if (depart == null || arrivee == null) {
+            return Map.of("error", "Les champs 'depart' et 'arrivee' sont requis.");
+        }
+
+        return cartographieService.getItineraire(depart, arrivee);
     }
 }
