@@ -36,8 +36,11 @@ function VehicleSelector({ onSelect }) {
   };
 
   const handleVehicleSelect = (vehicle) => {
-    setSelectedVehicle(vehicle); // Afficher le véhicule sélectionné
+    console.log("✅ Véhicule sélectionné :", vehicle);
+    setSelectedVehicle(vehicle);
+    onSelect(vehicle); 
   };
+  
 
   const handleBackToList = () => {
     setSelectedVehicle(null); // Revenir à la liste

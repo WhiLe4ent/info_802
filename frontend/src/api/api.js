@@ -16,6 +16,30 @@ export async function getTrajet(depart, arrivee, vehicleId) {
   }
 }
 
+export async function getTrajetComplet(depart, arrivee, vehicleId, bestRange, worstRange) {
+  try {
+    const response = await fetch(`${API_URL}/api/trajet-complet`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        departVille: depart,
+        arriveeVille: arrivee,
+        vehicleId,
+        bestRange,
+        worstRange
+      }),
+    });
+
+    const data = await response.json();
+    console.log("🚗 Trajet complet reçu :", data);
+    return data;
+  } catch (error) {
+    console.error("❌ Erreur API trajet complet :", error);
+    return null;
+  }
+}
+
+
 
 export async function fetchVehicles(page = 0, size = 10, search = '') {
   const query = "query GetVehicles($page: Int!, $size: Int!, $search: String) { carList(page: $page, size: $size, search: $search) { id naming { make model } media { image { thumbnail_url } }battery { usable_kwh } range { chargetrip_range { best worst } } } }";
