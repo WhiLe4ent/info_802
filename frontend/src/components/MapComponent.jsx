@@ -63,21 +63,22 @@ function MapComponent({ trajet }) {
       {coordinates.length > 0 && <Polyline positions={coordinates} color="blue" />}
 
       {/* Affichage des bornes de recharge */}
+      {/* Marqueurs des bornes de recharge */}
       {bornes.length > 0 ? (
         bornes.map((borne, index) => {
-          const coords = borne.geometry?.coordinates; // ✅ Correction ici
-          if (!coords || coords.length !== 2) return null; // Vérifier si les coordonnées sont valides
-
-          const [lon, lat] = coords; // Inverser pour Leaflet (lat, lon)
-          console.log(`📍 Affichage borne ${index} à ${lat},${lon}`);
+          const coords = borne.geometry?.coordinates;
+          if (!coords || coords.length !== 2) return null;
+          const [lon, lat] = coords;
 
           return (
-            <Marker key={index} position={[lat, lon]} icon={chargingStationIcon}>
+            <Marker key={index} position={[lat, lon]} className="custom-marker">
               <Popup>
-                ⚡ <strong>Borne de recharge</strong> <br />
-                📍 {borne.fields?.n_station || "Adresse inconnue"} <br />
-                🔌 Type : {borne.fields?.type_prise || "Non précisé"} <br />
-                💰 Accès : {borne.fields?.acces_recharge || "Non précisé"}
+                <div className="popup-content">
+                  <h3>⚡ Borne de recharge</h3>
+                  <p><strong>📍 Adresse :</strong> {borne.fields?.n_station || "Non précisé"}</p>
+                  <p><strong>🔌 Type :</strong> {borne.fields?.type_prise || "Non précisé"}</p>
+                  <p><strong>💰 Accès :</strong> {borne.fields?.acces_recharge || "Non précisé"}</p>
+                </div>
               </Popup>
             </Marker>
           );
