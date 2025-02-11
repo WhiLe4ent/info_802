@@ -57,6 +57,7 @@ function VehicleSelector({ onSelect }) {
             <img src={selectedVehicle.media?.image?.thumbnail_url || 'default-image.jpg'} alt="Vehicle" />
             <p>Batterie: {selectedVehicle.battery.usable_kwh} kWh</p>
             <p>Autonomie: {selectedVehicle.range.chargetrip_range.best} km - {selectedVehicle.range.chargetrip_range.worst} km</p>
+            <button onClick={() => onSelect(selectedVehicle)}>Choisir</button>
           </div>
         ) : (
           <>

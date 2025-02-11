@@ -27,8 +27,8 @@ public class VehicleService {
     public VehicleService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
                 .baseUrl(CHARGETRIP_API_URL)
-                .defaultHeader("x-client-id", "678a18d96f014f34da84461e")
-                .defaultHeader("x-app-id", "678a18d96f014f34da844620")
+                .defaultHeader("x-client-id", "67ab59ed4802aaa070546d8c")
+                .defaultHeader("x-app-id", "67ab59ed4802aaa070546d8e")
                 .defaultHeader("Content-Type", "application/json")
                 .build();
     }
