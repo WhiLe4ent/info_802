@@ -32,7 +32,7 @@ export async function getTrajetComplet(depart, arrivee, vehicleId, bestRange, wo
 
     const data = await response.json();
     console.log("🚗 Trajet complet reçu :", data);
-    const duree = getTrajetDuration(data.distance_km, worstRange, 30);
+    // const duree = getTrajetDuration(data.distance_km, worstRange, 30);
     
     return data;
   } catch (error) {
@@ -101,7 +101,6 @@ export async function getTrajetDuration(distance, autonomie, tempsRecharge) {
       }
 
       const textResponse = await response.text();
-      console.log("🔍 Réponse SOAP brute :", textResponse);
       
       // Parser la réponse XML
       const parser = new DOMParser();

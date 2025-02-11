@@ -1,15 +1,17 @@
-// VehicleSelector.js
 import React, { useState, useEffect } from 'react';
 import { fetchVehicles } from '../api/api';
 import VehicleCard from './VehicleCard';
 
-function VehicleSelector({ onSelect }) {
+function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [search, setSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState(null); // Pour gérer la vue détaillée
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [autonomie, setAutonomie] = useState(""); 
+  const [tempsRecharge, setTempsRecharge] = useState("30"); 
+  const [tempsTotal, setTempsTotal] = useState(""); 
 
   useEffect(() => {
     async function loadVehicles() {
@@ -18,85 +20,87 @@ function VehicleSelector({ onSelect }) {
       setVehicles(newVehicles);
       setLoading(false);
     }
-
     loadVehicles();
   }, [page, size, search]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
-    setPage(0); // Réinitialiser la page à 0
-  };
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
-  const handleSizeChange = (newSize) => {
-    setSize(newSize);
+    setPage(0);
   };
 
   const handleVehicleSelect = (vehicle) => {
     console.log("✅ Véhicule sélectionné :", vehicle);
     setSelectedVehicle(vehicle);
-    onSelect(vehicle); 
+    setAutonomie(vehicle.range.chargetrip_range.worst); 
   };
-  
 
   const handleBackToList = () => {
-    setSelectedVehicle(null); // Revenir à la liste
+    setSelectedVehicle(null);
+  };
+
+  const handleChoisirVehicule = () => {
+    const selectedVehicleData = {
+      ...selectedVehicle,
+      autonomie: autonomie,
+      tempsRecharge: tempsRecharge
+    };
+    onSelect(selectedVehicleData);
   };
 
   return (
     <div className="vehicle-selector">
-      <div className="vehicle-list-container">
-        {/* Si un véhicule est sélectionné, on affiche le détail, sinon on affiche la liste */}
-        {selectedVehicle ? (
-          <div className="vehicle-detail">
-            <button onClick={handleBackToList}>Retour à la liste</button>
-            <h2>{selectedVehicle.naming.make} {selectedVehicle.naming.model}</h2>
-            <img src={selectedVehicle.media?.image?.thumbnail_url || 'default-image.jpg'} alt="Vehicle" />
-            <p>Batterie: {selectedVehicle.battery.usable_kwh} kWh</p>
-            <p>Autonomie: {selectedVehicle.range.chargetrip_range.best} km - {selectedVehicle.range.chargetrip_range.worst} km</p>
-            <button onClick={() => onSelect(selectedVehicle)}>Choisir</button>
-          </div>
-        ) : (
-          <>
-            <div className="search-bar">
-              <input
-                type="text"
-                value={search}
-                onChange={handleSearchChange}
-                placeholder="Recherche de véhicule"
+      {selectedVehicle ? (
+        <div className="vehicle-detail">
+          <button className="back-button" onClick={handleBackToList}>← Retour</button>
+          <h2>{selectedVehicle.naming.make} {selectedVehicle.naming.model}</h2>
+          <div className="selected-vehicle-card">
+            <img src={selectedVehicle.media?.image?.thumbnail_url || 'default-image.jpg'} alt="Véhicule" />
+            <div className="vehicle-info">
+              <p><strong>Batterie :</strong> {selectedVehicle.battery.usable_kwh} kWh</p>
+              <p><strong>Autonomie :</strong></p>
+              <input 
+                type="number" 
+                value={autonomie} 
+                onChange={(e) => setAutonomie(e.target.value)}
               />
-              <select value={size} onChange={(e) => handleSizeChange(Number(e.target.value))}>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-              </select>
+              <p><strong>Temps de recharge :</strong></p>
+              <input 
+                type="number" 
+                value={tempsRecharge} 
+                onChange={(e) => setTempsRecharge(e.target.value)}
+              /> min
+              <p><strong>Distance du trajet :</strong> {distance || "0"} km</p>
+              <p><strong>Temps total :</strong> {tempsTrajet || "--:--"} h</p>
+              <button className="choose-button" onClick={handleChoisirVehicule}>✅ Choisir ce véhicule</button>
             </div>
-
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="search-bar">
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Rechercher un véhicule..."
+            />
+          </div>
+          <div className="vehicle-list">
             {loading ? (
               <p>Chargement...</p>
             ) : (
-              <div className="vehicle-list">
-                {vehicles.map((vehicle) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    onClick={handleVehicleSelect}
-                  />
-                ))}
-              </div>
+              vehicles.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={handleVehicleSelect} />
+              ))
             )}
-
-            <div className="pagination">
-              <button onClick={() => handlePageChange(page - 1)} disabled={page <= 0}>Précédent</button>
-              <span>{page + 1}</span>
-              <button onClick={() => handlePageChange(page + 1)}>Suivant</button>
-            </div>
-          </>
-        )}
-      </div>
+          </div>
+          <div className="pagination">
+            <button onClick={() => setPage(page - 1)} disabled={page <= 0}>Précédent</button>
+            <span>{page + 1}</span>
+            <button onClick={() => setPage(page + 1)}>Suivant</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

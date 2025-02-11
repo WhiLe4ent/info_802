@@ -3,33 +3,32 @@ import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-
-const chargingStationIcon = new L.DivIcon({
-  className: "custom-charging-icon", // Classe CSS pour personnaliser l'affichage
-  html: "📍", // Utilisation d'un emoji ou d'un texte
-  iconSize: [30, 30], 
-  iconAnchor: [15, 30],
-  popupAnchor: [0, -30]
-});
-
 function MapComponent({ trajet }) {
   const [coordinates, setCoordinates] = useState([]);
   const [bornes, setBornes] = useState([]);
-  const [mapCenter, setMapCenter] = useState([48.8566, 2.3522]); // Position initiale
-  const [isLoading, setIsLoading] = useState(true); // Ajout du chargement
+  const [mapCenter, setMapCenter] = useState([48.8566, 2.3522]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [departCoords, setDepartCoords] = useState(null);
+  const [arriveeCoords, setArriveeCoords] = useState(null);
 
   useEffect(() => {
     console.log("📡 Trajet reçu dans MapComponent :", trajet);
 
     if (trajet) {
-      setIsLoading(false); // Les données sont chargées
+      setIsLoading(false); // Fin du chargement
 
-      // Récupérer l'itinéraire
+      // 📍 Récupérer l'itinéraire
       if (trajet?.geometry?.coordinates) {
         const itineraryCoordinates = trajet.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
         setCoordinates(itineraryCoordinates);
 
-        // Déterminer le centre de la carte
+        // 📍 Mettre à jour les coordonnées du départ et de l'arrivée
+        if (itineraryCoordinates.length > 1) {
+          setDepartCoords(itineraryCoordinates[0]); // Premier point = départ
+          setArriveeCoords(itineraryCoordinates[itineraryCoordinates.length - 1]); // Dernier point = arrivée
+        }
+
+        // 🗺 Déterminer le centre de la carte
         const latitudes = itineraryCoordinates.map(coord => coord[0]);
         const longitudes = itineraryCoordinates.map(coord => coord[1]);
 
@@ -38,7 +37,7 @@ function MapComponent({ trajet }) {
         setMapCenter([centerLat, centerLon]);
       }
 
-      // Vérifier les bornes de recharge
+      // 🔋 Vérifier les bornes de recharge
       if (Array.isArray(trajet?.bornes_recharge)) {
         console.log("🔌 Bornes reçues :", trajet.bornes_recharge);
         setBornes(trajet.bornes_recharge);
@@ -59,11 +58,34 @@ function MapComponent({ trajet }) {
         </div>
       )}
 
-      {/* Affichage de l'itinéraire */}
+      {/* 📍 Affichage du trajet */}
       {coordinates.length > 0 && <Polyline positions={coordinates} color="blue" />}
 
-      {/* Affichage des bornes de recharge */}
-      {/* Marqueurs des bornes de recharge */}
+      {/* 🟢 Marqueur de départ */}
+      {departCoords && (
+        <Marker key="depart" position={departCoords} className="custom-marker">
+          <Popup>
+            <div className="popup-content">
+              <h3>🚀 Départ</h3>
+              <p>📍 Point de départ de l'itinéraire</p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
+
+      {/* 🔴 Marqueur d'arrivée */}
+      {arriveeCoords && (
+        <Marker key="arrivee" position={arriveeCoords} className="custom-marker">
+          <Popup>
+            <div className="popup-content">
+              <h3>🏁 Arrivée</h3>
+              <p>📍 Point d'arrivée de l'itinéraire</p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
+
+      {/* ⚡ Affichage des bornes de recharge */}
       {bornes.length > 0 ? (
         bornes.map((borne, index) => {
           const coords = borne.geometry?.coordinates;
