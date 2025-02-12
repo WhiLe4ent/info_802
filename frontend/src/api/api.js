@@ -53,7 +53,7 @@ export async function fetchVehicles(page = 0, size = 10, search = '') {
   };
 
   try {
-    const response = await fetch('http://localhost:8080/graphql', {
+    const response = await fetch(`${API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -87,7 +87,7 @@ export async function getTrajetDuration(distance, autonomie, tempsRecharge) {
       </soapenv:Envelope>`;
 
   try {
-      const response = await fetch("http://localhost:8080/ws", {
+      const response = await fetch(`${API_URL}/ws`, {
           method: "POST",
           headers: {
               "Content-Type": "text/xml",
