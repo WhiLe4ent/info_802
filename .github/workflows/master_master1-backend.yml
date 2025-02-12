@@ -67,4 +67,4 @@ jobs:
         with:
           app-name: 'master1-backend'  # Replace with your Azure App Service name for the backend
           slot-name: 'Production'
-          package: './projet_802/target/*.jar'  # Ensure this path is correct
+          package: '*.jar'  # Ensure this path is correct
