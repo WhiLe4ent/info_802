@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}projet_802/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,5 +62,5 @@ jobs:
         with:
           app-name: 'master1-backend'
           slot-name: 'Production'
-          package: './projet_802/target/*.jar'
+          package: '*.jar'
           
