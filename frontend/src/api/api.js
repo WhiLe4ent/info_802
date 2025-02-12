@@ -18,7 +18,7 @@ export async function getTrajet(depart, arrivee, vehicleId) {
 
 export async function getTrajetComplet(depart, arrivee, vehicleId, bestRange, worstRange) {
   try {
-    const response = await fetch(`${API_URL}/api/trajet-complet`, {
+    const response = await fetch(`https://master1-backend.azurewebsites.net/api/trajet-complet`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

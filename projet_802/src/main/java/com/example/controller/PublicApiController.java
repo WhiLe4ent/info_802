@@ -17,14 +17,12 @@ public class PublicApiController {
 
     private final CartographieService cartographieService;
     private final BorneRechargeService borneRechargeService;
-    private final VehicleService vehicleService;
     private final TrajetSoapClient trajetSoapClient;
 
     public PublicApiController(CartographieService cartographieService, BorneRechargeService borneRechargeService,
                                VehicleService vehicleService, TrajetSoapClient trajetSoapClient) {
         this.cartographieService = cartographieService;
         this.borneRechargeService = borneRechargeService;
-        this.vehicleService = vehicleService;
         this.trajetSoapClient = trajetSoapClient;
     }
 
@@ -67,7 +65,7 @@ public class PublicApiController {
         List<Map<String, Object>> bornes = borneRechargeService.getBornesPourRecharge(itineraire, worstRange);
         itineraire.put("bornes_recharge", bornes);
 
-        // 🔹 Calculer le temps de trajet via SOAP
+        // // 🔹 Calculer le temps de trajet via SOAP
         double distance = (double) itineraire.get("distance_km");
         double tempsRecharge = 30;
         CalculTrajetResponse trajetResponse = trajetSoapClient.calculerTrajet(distance, worstRange, tempsRecharge);

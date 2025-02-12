@@ -6,6 +6,7 @@
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/config/WebServiceConfig.java
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/controller/BorneRechargeController.java
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/controller/CartographieController.java
+/home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/controller/FrontendController.java
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/controller/PublicApiController.java
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/endpoint/TrajetEndpoint.java
 /home/while4ent/Bureau/fac/M1/S8/architectures orientees services/projet/projet_802/src/main/java/com/example/model/CalculTrajetRequest.java

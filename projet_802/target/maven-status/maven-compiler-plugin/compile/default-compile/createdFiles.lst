@@ -1,3 +1,4 @@
+com/example/controller/FrontendController.class
 com/example/service/VehicleService.class
 com/example/service/TrajetService.class
 com/example/config/WebServiceConfig.class
