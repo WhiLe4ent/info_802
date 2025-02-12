@@ -62,5 +62,5 @@ jobs:
         with:
           app-name: 'master1-backend'
           slot-name: 'Production'
-          package: '*.jar'
+          package: './projet_802/target/*.jar'
           
