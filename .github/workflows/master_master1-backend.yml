@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy JAR app to Azure Web App - master1-backend
+name: Build and deploy backend to Azure Web App
 
 on:
   push:
@@ -13,25 +10,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # This is required for actions/checkout
 
     steps:
+      # Checkout the code
       - uses: actions/checkout@v4
 
+      # Set up Java and build Spring Boot application
       - name: Set up Java version
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'microsoft'
 
-      - name: Build with Maven
+      # Build the backend with Maven
+      - name: Build backend with Maven
+        working-directory: ./projet_802  # Change this to the correct directory for your backend
         run: mvn clean install
 
-      - name: Upload artifact for deployment job
+      # Upload artifact for deployment job
+      - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: java-app
-          path: '${{ github.workspace }}/projet_802/target/*.jar'
+          name: backend-app
+          path: './projet_802/target/*.jar'  # Adjust this path according to your Maven build output
 
   deploy:
     runs-on: ubuntu-latest
@@ -40,27 +42,29 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-  
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+
     steps:
-      - name: Download artifact from build job
+      # Download backend artifact
+      - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
-          name: java-app
-      
+          name: backend-app
+
+      # Login to Azure
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36081904200144CA8D61E4098554601A }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_95FC3F20A25440A890D7FF691827D173 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D517A53FC6E54D879DDFBC4CC5A6CCFD }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      # Deploy backend to Azure Web App
+      - name: Deploy backend to Azure Web App
+        id: deploy-backend
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'master1-backend'
+          app-name: 'backend-app-name'  # Replace with your Azure App Service name for the backend
           slot-name: 'Production'
-          package: '*.jar'
-          
+          package: './projet_802/target/*.jar'  # Ensure this path is correct
