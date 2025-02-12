@@ -1,0 +1,38 @@
+type Query {
+  carList(page: Int!, size: Int!, search: String): [Vehicle]
+}
+
+type Vehicle {
+  id: String
+  naming: Naming
+  battery: Battery
+  range: Range
+  media: Media
+}
+
+type Naming {
+  make: String
+  model: String
+  chargetrip_version: String
+}
+
+type Battery {
+  usable_kwh: Float
+}
+
+type Range {
+  chargetrip_range: ChargetripRange
+}
+
+type ChargetripRange {
+  best: Float
+  worst: Float
+}
+
+type Media {
+  image: Image
+}
+
+type Image {
+  thumbnail_url: String
+}
