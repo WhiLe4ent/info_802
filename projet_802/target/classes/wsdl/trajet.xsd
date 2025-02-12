@@ -1,0 +1,19 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tp.vehicule.com/ws" xmlns="http://tp.vehicule.com/ws" elementFormDefault="qualified">
+    <xs:element name="CalculTrajetRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="distance" type="xs:double"/>
+                <xs:element name="autonomie" type="xs:double"/>
+                <xs:element name="tempsRecharge" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="CalculTrajetResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tempsTotal" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

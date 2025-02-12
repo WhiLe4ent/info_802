@@ -1,0 +1,70 @@
+name: Build and deploy backend to Azure Web App
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # This is required for actions/checkout
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v4
+
+      # Set up Java and build Spring Boot application
+      - name: Set up Java version
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'microsoft'
+
+      # Build the backend with Maven
+      - name: Build backend with Maven
+        working-directory: ./projet_802  # Change this to the correct directory for your backend
+        run: mvn clean install
+
+      # Upload artifact for deployment job
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-app
+          path: './projet_802/target/*.jar'  # Adjust this path according to your Maven build output
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+
+    steps:
+      # Download backend artifact
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-app
+
+      # Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36081904200144CA8D61E4098554601A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_95FC3F20A25440A890D7FF691827D173 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D517A53FC6E54D879DDFBC4CC5A6CCFD }}
+
+      # Deploy backend to Azure Web App
+      - name: Deploy backend to Azure Web App
+        id: deploy-backend
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'master1-backend'  # Replace with your Azure App Service name for the backend
+          slot-name: 'Production'
+          package: '*.jar' 
