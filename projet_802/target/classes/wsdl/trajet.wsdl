@@ -1,0 +1,63 @@
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://tp.vehicule.com/ws"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="http://tp.vehicule.com/ws">
+
+    <types>
+        <xsd:schema targetNamespace="http://tp.vehicule.com/ws">
+            <xsd:element name="CalculTrajetRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="distance" type="xsd:double"/>
+                        <xsd:element name="autonomie" type="xsd:double"/>
+                        <xsd:element name="tempsRecharge" type="xsd:double"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="CalculTrajetResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="tempsTotal" type="xsd:double"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <message name="CalculTrajetRequest">
+        <part name="parameters" element="tns:CalculTrajetRequest"/>
+    </message>
+
+    <message name="CalculTrajetResponse">
+        <part name="parameters" element="tns:CalculTrajetResponse"/>
+    </message>
+
+    <portType name="TrajetPort">
+        <operation name="calculTrajet">
+            <input message="tns:CalculTrajetRequest"/>
+            <output message="tns:CalculTrajetResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="TrajetBinding" type="tns:TrajetPort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="calculTrajet">
+            <soap:operation soapAction="http://tp.vehicule.com/ws/calculTrajet"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <service name="TrajetService">
+        <port name="TrajetPort" binding="tns:TrajetBinding">
+            <soap:address location="http://localhost:8080/ws"/>
+        </port>
+    </service>
+
+</definitions>
