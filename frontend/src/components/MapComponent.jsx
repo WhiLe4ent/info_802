@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import L from "leaflet";
 
 function MapComponent({ trajet }) {
@@ -63,7 +65,19 @@ function MapComponent({ trajet }) {
 
       {/* 🟢 Marqueur de départ */}
       {departCoords && (
-        <Marker key="depart" position={departCoords} className="custom-marker">
+        <Marker
+          key="depart"
+          position={departCoords}
+          icon={L.icon({
+            iconUrl: markerIconPng,
+            shadowUrl: markerShadowPng,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34], 
+            shadowSize: [41, 41], 
+          })}
+          className="custom-marker"
+        >
           <Popup>
             <div className="popup-content">
               <h3>🚀 Départ</h3>
@@ -75,7 +89,19 @@ function MapComponent({ trajet }) {
 
       {/* 🔴 Marqueur d'arrivée */}
       {arriveeCoords && (
-        <Marker key="arrivee" position={arriveeCoords} className="custom-marker">
+        <Marker
+          key="arrivee"
+          position={arriveeCoords}
+          icon={L.icon({
+            iconUrl: markerIconPng,
+            shadowUrl: markerShadowPng,
+            iconSize: [25, 41], 
+            iconAnchor: [12, 41], 
+            popupAnchor: [1, -34], 
+            shadowSize: [41, 41],
+          })}
+          className="custom-marker"
+        >
           <Popup>
             <div className="popup-content">
               <h3>🏁 Arrivée</h3>
@@ -93,7 +119,19 @@ function MapComponent({ trajet }) {
           const [lon, lat] = coords;
 
           return (
-            <Marker key={index} position={[lat, lon]} className="custom-marker">
+            <Marker
+              key={index}
+              position={[lat, lon]}
+              icon={L.icon({
+                iconUrl: markerIconPng,
+                shadowUrl: markerShadowPng,
+                iconSize: [25, 41], 
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41], 
+              })}
+              className="custom-marker"
+            >
               <Popup>
                 <div className="popup-content">
                   <h3>⚡ Borne de recharge</h3>
