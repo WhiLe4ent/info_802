@@ -39,6 +39,7 @@ public class CartographieService {
 
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
+        System.out.println("🔍 Response openrouteservice : " + response);
         if (response != null && response.containsKey("features")) {
             List<Map<String, Object>> features = (List<Map<String, Object>>) response.get("features");
             if (!features.isEmpty()) {
@@ -55,6 +56,7 @@ public class CartographieService {
                     Map<String, Object> resultat = new HashMap<>();
                     resultat.put("distance_km", distance / 1000);
                     resultat.put("geometry", geometry); 
+                    // resultat.put("temps_total", time); 
 
                     return resultat;
                 }
