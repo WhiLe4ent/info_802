@@ -68,10 +68,10 @@ public class PublicApiController {
         // // 🔹 Calculer le temps de trajet via SOAP
         double distance = (double) itineraire.get("distance_km");
         double tempsRecharge = 30;
-        CalculTrajetResponse trajetResponse = trajetSoapClient.calculerTrajet(distance, worstRange, tempsRecharge);
+        // CalculTrajetResponse trajetResponse = trajetSoapClient.calculerTrajet(distance, worstRange, tempsRecharge);
 
-        // 🔹 Ajouter le temps total dans la réponse
-        itineraire.put("temps_total", trajetResponse.getTempsTotal());
+        // // 🔹 Ajouter le temps total dans la réponse
+        // itineraire.put("temps_total", trajetResponse.getTempsTotal());
 
         return ResponseEntity.ok(itineraire);
     }
