@@ -21,8 +21,7 @@ public class SoapCorsFilter extends OncePerRequestFilter {
 
         
                 
-        // response.setHeader("Access-Control-Allow-Origin", "https://agreeable-dune-09cad6c10.4.azurestaticapps.net");
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", "https://agreeable-dune-09cad6c10.4.azurestaticapps.net");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, SOAPAction");
         response.setHeader("Access-Control-Allow-Credentials", "true");
