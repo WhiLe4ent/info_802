@@ -57,7 +57,7 @@
     <service name="TrajetService">
         <port name="TrajetPort" binding="tns:TrajetBinding">
             <!-- <soap:address location="http://localhost:8080/ws"/> -->
-            <soap:address location="master1-backend.azurewebsites.net/ws"/>
+            <soap:address location="https://master1-backend.azurewebsites.net/ws"/>
         </port>
     </service>
 
