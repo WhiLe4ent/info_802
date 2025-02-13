@@ -1,4 +1,5 @@
 const API_URL = "https://master1-backend.azurewebsites.net"; 
+// const API_URL = "https://localhost:8080"; 
 
 export async function getTrajet(depart, arrivee, vehicleId) {
   try {
