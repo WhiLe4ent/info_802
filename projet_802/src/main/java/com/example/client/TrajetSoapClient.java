@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class TrajetSoapClient extends WebServiceGatewaySupport {
 
-    private static final String SOAP_URL = "http://localhost:8080/ws";
+    // private static final String SOAP_URL = "http://localhost:8080/ws";
+    private static final String SOAP_URL = "https://agreeable-dune-09cad6c10.4.azurestaticapps.net/ws";
     private static final String SOAP_ACTION = "http://tp.vehicule.com/ws/CalculTrajetRequest";
 
     public TrajetSoapClient() {
