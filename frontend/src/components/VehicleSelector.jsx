@@ -11,7 +11,7 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [autonomie, setAutonomie] = useState(""); 
   const [tempsRecharge, setTempsRecharge] = useState("30"); 
-  const [tempsTotal, setTempsTotal] = useState(""); 
+  const [tempsTotal, setTempsTotal] = useState(trajet?.duration || ""); 
 
   useEffect(() => {
     async function loadVehicles() {
