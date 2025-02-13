@@ -31,6 +31,7 @@ public class TrajetSoapClient extends WebServiceGatewaySupport {
     @PostConstruct
     public void init() {
         this.soapUrl = serviceUrl + "/ws"; // Construit l'URL après injection de serviceUrl
+        System.out.println("URL du service SOAP : " + soapUrl);
     }
 
     public CalculTrajetResponse calculerTrajet(double distance, double autonomie, double tempsRecharge) {
