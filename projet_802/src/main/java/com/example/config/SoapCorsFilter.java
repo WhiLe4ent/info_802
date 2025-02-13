@@ -17,9 +17,7 @@ public class SoapCorsFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        
+            throws ServletException, IOException {     
                 
         response.setHeader("Access-Control-Allow-Origin", "https://agreeable-dune-09cad6c10.4.azurestaticapps.net");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
