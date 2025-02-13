@@ -20,6 +20,7 @@ public class SoapCorsFilter extends OncePerRequestFilter {
             throws ServletException, IOException {     
                 
         response.setHeader("Access-Control-Allow-Origin", "https://agreeable-dune-09cad6c10.4.azurestaticapps.net");
+        // response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, SOAPAction");
         response.setHeader("Access-Control-Allow-Credentials", "true");

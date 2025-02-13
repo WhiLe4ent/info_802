@@ -56,7 +56,8 @@
 
     <service name="TrajetService">
         <port name="TrajetPort" binding="tns:TrajetBinding">
-            <soap:address location="http://localhost:8080/ws"/>
+            <!-- <soap:address location="http://localhost:8080/ws"/> -->
+            <soap:address location="https://agreeable-dune-09cad6c10.4.azurestaticapps.net"/>
         </port>
     </service>
 
