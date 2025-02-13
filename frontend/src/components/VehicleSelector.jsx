@@ -13,7 +13,6 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   const [tempsRecharge, setTempsRecharge] = useState("30"); 
   const [tempsTotal, setTempsTotal] = useState(trajet?.temps_total || ""); 
 
-  console.log("temps total  : ", tempsTotal);
 
   useEffect(() => {
     async function loadVehicles() {
@@ -25,6 +24,19 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
     loadVehicles();
   }, [page, size, search]);
 
+  useEffect(() => {
+    if (tempsTrajet) {
+      const hours = Math.floor(tempsTrajet);
+      const minutes = Math.round((tempsTrajet - hours) * 60); 
+
+      // Formater l'heure et les minutes
+      const formattedTime = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
+      
+      setTempsTotal(formattedTime);
+    }
+  }, [tempsTrajet]);
+
+  
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setPage(0);
