@@ -25,7 +25,7 @@ jobs:
 
       # Build the backend with Maven
       - name: Build backend with Maven
-        working-directory: ./projet_802  # Change this to the correct directory for your backend
+        working-directory: ./projet_802  
         run: mvn clean install
 
       # Upload artifact for deployment job
@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-app
-          path: './projet_802/target/*.jar'  # Adjust this path according to your Maven build output
+          path: './projet_802/target/*.jar' 
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,6 +65,6 @@ jobs:
         id: deploy-backend
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'master1-backend'  # Replace with your Azure App Service name for the backend
+          app-name: 'master1-backend'  
           slot-name: 'Production'
           package: '*.jar'  

@@ -14,8 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedOrigins("https://agreeable-dune-09cad6c10.4.azurestaticapps.net/")
+                        .allowedOrigins("http://localhost:5173", "https://agreeable-dune-09cad6c10.4.azurestaticapps.net/")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
