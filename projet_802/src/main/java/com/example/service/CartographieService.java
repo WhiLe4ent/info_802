@@ -210,7 +210,7 @@ public class CartographieService {
     }
     
     private Map<String, Double> chercherBorneProche(Map<String, Double> point, double autonomieRestante) {
-        double rayonRecherche = autonomieRestante * 150; // Commencer avec un rayon réduit
+        double rayonRecherche = autonomieRestante * 150; 
         Map<String, Double> borne = null;
         
         for (int tentative = 0; tentative < 5; tentative++) {
@@ -219,7 +219,7 @@ public class CartographieService {
             }
             System.out.println("🔍 Recherche de borne à proximité de " + point + " avec un rayon de " + rayonRecherche + " mètres");
             borne = borneRechargeService.trouverBorneProche(point, rayonRecherche);
-            rayonRecherche *= 1.5; // Augmenter le rayon de manière exponentielle
+            rayonRecherche *= 1.5; 
         }
 
         
