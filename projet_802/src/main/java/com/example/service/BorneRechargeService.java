@@ -1,10 +1,12 @@
 package com.example.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -32,7 +34,7 @@ public class BorneRechargeService {
         List<Map<String, Object>> cachedResult = cache.getIfPresent(cacheKey);
         if (cachedResult != null) return cachedResult;
 
-        String url = API_URL + "?dataset=bornes-irve&geofilter.distance=" + latitude + "," + longitude + "," + rayon;
+        String url = API_URL + "?dataset=bornes-irve&geofilter.distance=" + latitude + "," + longitude + "," + rayon + "&rows=1";
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
         if (response != null && response.containsKey("records")) {
@@ -65,7 +67,7 @@ public class BorneRechargeService {
 
             if (distanceParcourue >= worstRange) {
                 double searchLat = lat, searchLon = lon;
-                futures.add(CompletableFuture.supplyAsync(() -> getBornesProches(searchLat, searchLon, 5000), executor));
+                futures.add(CompletableFuture.supplyAsync(() -> getBornesProches(searchLat, searchLon, 50000), executor));
                 distanceParcourue = 0; // Réinitialiser la distance
             }
         }
@@ -84,13 +86,51 @@ public class BorneRechargeService {
         return bornesUtiles;
     }
 
-    private double calculerDistance(double lat1, double lon1, double lat2, double lon2) {
+
+    public double calculerDistance(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371;
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
+
+
+    public Map<String, Double> trouverBorneProche(Map<String, Double> position, double autonomieRestante) {
+        if (position == null || !position.containsKey("lat") || !position.containsKey("lon") ||
+            position.get("lat") == null || position.get("lon") == null) {
+            throw new RuntimeException("Coordonnées invalides pour la recherche de borne !");
+        }
+    
+        String url = API_URL + "?dataset=bornes-irve&q=&geofilter.distance=" +
+        position.get("lat") + "," + position.get("lon") + ",30000&rows=1";
+
+        System.out.println("Appel API URL : " + url);
+    
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
+    
+        JsonNode records = response.getBody().path("records");
+        if (records.isEmpty()) {
+            return null; 
+        }
+    
+        JsonNode fields = records.get(0).path("fields");
+        double lat, lon;
+        if (fields.has("geo_point_borne") && fields.path("geo_point_borne").isArray() && fields.path("geo_point_borne").size() >= 2) {
+            lat = fields.path("geo_point_borne").get(0).asDouble(); 
+            lon = fields.path("geo_point_borne").get(1).asDouble(); 
+        } else {
+            return null; 
+        }
+    
+        System.out.println("Borne trouvée : lat=" + lat + ", lon=" + lon);
+    
+        return Map.of("lat", lat, "lon", lon);
+    }
+    
+    
+
 }

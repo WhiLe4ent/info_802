@@ -56,7 +56,7 @@ public class PublicApiController {
         System.out.println("   ➡️ Worst Range: " + worstRange);
 
         // 🔹 Récupérer l'itinéraire
-        Map<String, Object> itineraire = cartographieService.getItineraireOnly(departVille, arriveeVille);
+        Map<String, Object> itineraire = cartographieService.calculerItineraireAvecRecharges(departVille, arriveeVille, worstRange);
         if (itineraire.containsKey("error")) {
             return ResponseEntity.badRequest().body(itineraire);
         }
