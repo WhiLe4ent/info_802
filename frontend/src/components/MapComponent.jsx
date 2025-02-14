@@ -46,9 +46,11 @@ function MapComponent({ trajet }) {
 
       if (Array.isArray(trajet.bornes)) {
         setBornes(trajet.bornes);
+        console.log("🔋 Bornes de recharge :", trajet.bornes);
       }
     }
   }, [trajet]);
+  
 
   return (
     <MapContainer center={mapCenter} zoom={6} className="leaflet-container">
@@ -106,10 +108,11 @@ function MapComponent({ trajet }) {
         </>
       ))}
 
-      {bornes.map((borne, index) => (
+    {bornes.map((borne, index) => {
+      return (
         <Marker
-          key={`borne-${index}`}
-          position={[borne.lat, borne.lon]}
+        key={`borne-${borne.lat}-${borne.lon}`} 
+        position={[borne.lat, borne.lon]}
           icon={L.icon({
             iconUrl: markerIconPng,
             shadowUrl: markerShadowPng,
@@ -126,7 +129,8 @@ function MapComponent({ trajet }) {
             </div>
           </Popup>
         </Marker>
-      ))}
+      );
+  })}
     </MapContainer>
   );
 }

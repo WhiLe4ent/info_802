@@ -72,7 +72,11 @@ public class BorneRechargeService {
     
             double lon = coord.get(0);
             double lat = coord.get(1);
-    
+            
+            if (previousLat == lat && previousLon == lon) {
+                continue;
+            }
+
             if (previousLat != 0 && previousLon != 0) {
                 distanceParcourue += calculerDistance(previousLat, previousLon, lat, lon);
             }
@@ -121,7 +125,7 @@ public class BorneRechargeService {
         }
     
         String url = API_URL + "?dataset=bornes-irve&q=&geofilter.distance=" +
-        position.get("lat") + "," + position.get("lon") + "," + "30000" + "&rows=1";
+        position.get("lat") + "," + position.get("lon") + "," + rayonRecherche + "&rows=1";
 
         System.out.println("Appel API URL : " + url);
     
