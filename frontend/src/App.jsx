@@ -23,11 +23,7 @@ function App() {
     if (depart && arrivee) {
       if (!selectedVehicle) {
         console.log("📍 Recherche itinéraire simple :", depart, "➡️", arrivee);
-
-        const { id, range } = selectedVehicle;
-        const worstRange = range.chargetrip_range.worst;
-
-        getTrajet(depart, arrivee,worstRange).then(async (data) => {
+        getTrajet(depart, arrivee).then(async (data) => {
           setTrajet(data);
           setDistance(data.distance_km);  
           setTempsTrajet(data.temps_total);  
