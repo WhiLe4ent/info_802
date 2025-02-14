@@ -14,10 +14,9 @@ function MapComponent({ trajet }) {
   const [arriveeCoords, setArriveeCoords] = useState(null);
 
   useEffect(() => {
-    console.log("📡 Trajet reçu dans MapComponent :", trajet);
 
     if (trajet) {
-      setIsLoading(false); // Fin du chargement
+      setIsLoading(false); 
 
       // 📍 Récupérer l'itinéraire
       if (trajet?.geometry?.coordinates) {
@@ -26,8 +25,8 @@ function MapComponent({ trajet }) {
 
         // 📍 Mettre à jour les coordonnées du départ et de l'arrivée
         if (itineraryCoordinates.length > 1) {
-          setDepartCoords(itineraryCoordinates[0]); // Premier point = départ
-          setArriveeCoords(itineraryCoordinates[itineraryCoordinates.length - 1]); // Dernier point = arrivée
+          setDepartCoords(itineraryCoordinates[0]); 
+          setArriveeCoords(itineraryCoordinates[itineraryCoordinates.length - 1]); 
         }
 
         // 🗺 Déterminer le centre de la carte
@@ -60,10 +59,10 @@ function MapComponent({ trajet }) {
         </div>
       )}
 
-      {/* 📍 Affichage du trajet */}
+      {/* Affichage du trajet */}
       {coordinates.length > 0 && <Polyline positions={coordinates} color="blue" />}
 
-      {/* 🟢 Marqueur de départ */}
+      {/* Marqueur de départ */}
       {departCoords && (
         <Marker
           key="depart"
@@ -87,7 +86,7 @@ function MapComponent({ trajet }) {
         </Marker>
       )}
 
-      {/* 🔴 Marqueur d'arrivée */}
+      {/* Marqueur d'arrivée */}
       {arriveeCoords && (
         <Marker
           key="arrivee"
