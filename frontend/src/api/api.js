@@ -1,12 +1,12 @@
-const API_URL = "https://master1-backend.azurewebsites.net"; 
-// const API_URL = "http://localhost:8080"; 
+// const API_URL = "https://master1-backend.azurewebsites.net"; 
+const API_URL = "http://localhost:8080"; 
 
-export async function getTrajet(depart, arrivee, vehicleId) {
+export async function getTrajet(depart, arrivee) {
   try {
     const response = await fetch(`${API_URL}/itineraire`, {
       method: "POST", 
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ departVille: depart, arriveeVille: arrivee, vehicleId }),
+      body: JSON.stringify({ departVille: depart, arriveeVille: arrivee }),
     });
     const data = await response.json();
     console.log("🚗 Trajet trouvé :", data);

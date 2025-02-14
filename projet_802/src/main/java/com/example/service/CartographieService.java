@@ -122,15 +122,6 @@ public class CartographieService {
         double lon = Double.parseDouble((String) firstResult.get("lon"));
         return new double[]{lat, lon};
     }
-
-    private double distanceEntrePoints(Map<String, Double> pointA, Map<String, Double> pointB) {
-        double latA = pointA.get("lat");
-        double lonA = pointA.get("lon");
-        double latB = pointB.get("lat");
-        double lonB = pointB.get("lon");
-    
-        return borneRechargeService.calculerDistance(latA, lonA, latB, lonB);
-    }
     
 
     public Map<String, Object> calculerItineraireAvecRecharges(String depart, String arrivee, double autonomieVehicule) {
@@ -157,72 +148,75 @@ public class CartographieService {
         List<Map<String, Double>> bornesUtilisees = new ArrayList<>();
     
         double autonomieRestante = autonomieVehicule * 0.9; // 90% de l'autonomie initiale
-        double distanceParcourue = 0;
         double distanceTotale = 0;
         
-        Map<String, Double> dernierPoint = itineraire.get(0); // point de départ
+        Map<String, Double> departPoint = itineraire.get(0);
         Map<String, Double> destinationFinale = itineraire.get(itineraire.size() - 1);
     
         while (true) {
-            // Vérifier si l'autonomie restante permet d'atteindre l'arrivée
             double distanceRestante = borneRechargeService.calculerDistance(
-                dernierPoint.get("lat"), dernierPoint.get("lon"),
+                departPoint.get("lat"), departPoint.get("lon"),
                 destinationFinale.get("lat"), destinationFinale.get("lon")
             );
     
             if (distanceRestante <= autonomieRestante) {
-                // Si on peut atteindre l'arrivée, on ajoute le dernier segment et on termine
-                Map<String, Object> itineraireFinal = getItineraireCoordonee(dernierPoint, destinationFinale);
-    
-                Map<String, Object> dernierSegment = new HashMap<>();
-                dernierSegment.put("depart", dernierPoint);
-                dernierSegment.put("arrivee", destinationFinale);
-                dernierSegment.put("itineraire", itineraireFinal);
-                dernierSegment.put("distance_km", distanceRestante);
-    
-                segments.add(dernierSegment);
+                segments.add(creerSegment(departPoint, destinationFinale, distanceRestante));
                 distanceTotale += distanceRestante;
                 break;
             }
     
-            // Trouver une borne proche lorsque l'autonomie est épuisée
-            Map<String, Double> borneRecharge = null;
-            double rayonRecherche = autonomieRestante;
-    
-            while (borneRecharge == null && rayonRecherche <= autonomieVehicule * 1.5) {
-                borneRecharge = borneRechargeService.trouverBorneProche(dernierPoint, rayonRecherche);
-                rayonRecherche += 10;
-            }
+            Map<String, Double> pointRecharge = trouverPointRecharge(itineraire, departPoint, autonomieRestante);
+            Map<String, Double> borneRecharge = chercherBorneProche(pointRecharge, autonomieRestante);
     
             if (borneRecharge == null) {
-                throw new RuntimeException("Impossible de trouver une borne même après élargissement !");
+                throw new RuntimeException("Impossible de trouver une borne de recharge même après élargissement du rayon de recherche !");
             }
     
-            // Ajouter le segment jusqu'à la borne
-            Map<String, Object> itineraireVersBorne = getItineraireCoordonee(dernierPoint, borneRecharge);
-    
-            Map<String, Object> segment = new HashMap<>();
-            segment.put("depart", dernierPoint);
-            segment.put("borneRecharge", borneRecharge);
-            segment.put("itineraire", itineraireVersBorne);
-            segment.put("distance_km", autonomieRestante);
-    
-            segments.add(segment);
+            segments.add(creerSegment(departPoint, borneRecharge, autonomieRestante));
             bornesUtilisees.add(borneRecharge);
-    
-            // Mettre à jour les variables pour continuer
-            dernierPoint = borneRecharge;
-            distanceTotale += autonomieRestante;
-            autonomieRestante = autonomieVehicule * 0.9; // Recharger à 90%
+            
+            departPoint = borneRecharge;
+            distanceTotale += borneRechargeService.calculerDistance(departPoint.get("lat"), departPoint.get("lon"), borneRecharge.get("lat"), borneRecharge.get("lon"));
+            distanceRestante = borneRechargeService.calculerDistance(borneRecharge.get("lat"), borneRecharge.get("lon"), destinationFinale.get("lat"), destinationFinale.get("lon"));
+
         }
     
-        // Construire la réponse finale
-        Map<String, Object> result = new HashMap<>();
-        result.put("segments", segments);
-        result.put("distance_totale_km", distanceTotale);
-        result.put("bornes", bornesUtilisees);
+        return Map.of(
+            "segments", segments,
+            "distance_km", distanceTotale,
+            "bornes", bornesUtilisees
+        );
+    }
     
-        return result;
+    private Map<String, Object> creerSegment(Map<String, Double> depart, Map<String, Double> arrivee, double distance) {
+        return Map.of(
+            "depart", depart,
+            "arrivee", arrivee,
+            "itineraire", getItineraireCoordonee(depart, arrivee),
+            "distance_km", distance
+        );
+    }
+    
+    private Map<String, Double> trouverPointRecharge(List<Map<String, Double>> itineraire, Map<String, Double> depart, double autonomieRestante) {
+        for (int i = 1; i < itineraire.size(); i++) {
+            Map<String, Double> point = itineraire.get(i);
+            double distance = borneRechargeService.calculerDistance(depart.get("lat"), depart.get("lon"), point.get("lat"), point.get("lon"));
+            if (distance > autonomieRestante) {
+                return itineraire.get(i - 1);
+            }
+        }
+        return itineraire.get(itineraire.size() - 1);
+    }
+    
+    private Map<String, Double> chercherBorneProche(Map<String, Double> point, double autonomieRestante) {
+        double rayonRecherche = autonomieRestante * 100;
+        Map<String, Double> borne = null;
+        
+        while (borne == null && rayonRecherche <= autonomieRestante * 150) {
+            borne = borneRechargeService.trouverBorneProche(point, rayonRecherche);
+            rayonRecherche += 10000;
+        }
+        return borne;
     }
     
     
