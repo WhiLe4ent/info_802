@@ -84,7 +84,7 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
                 onChange={(e) => setTempsRecharge(e.target.value)}
               /> min
               <p><strong>Distance du trajet :</strong> {distance || "0"} km</p>
-              <p><strong>Temps total :</strong> {tempsTrajet || "--:--"} h</p>
+              <p><strong>Temps total :</strong> {tempsTotal || "--:--"} h</p>
               <button className="choose-button" onClick={handleChoisirVehicule}>✅ Choisir ce véhicule</button>
             </div>
           </div>

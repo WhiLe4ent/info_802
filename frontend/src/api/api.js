@@ -33,9 +33,9 @@ export async function getTrajetComplet(depart, arrivee, vehicleId, bestRange, wo
 
     const data = await response.json();
     console.log("🚗 Trajet complet reçu :", data);
-    // const duree = getTrajetDuration(data.distance_km, worstRange, 30);
-    // data.temps_total = duree;
-    // console.log("🚗 Durée du trajet :", data.temps_total);
+    const duree = getTrajetDuration(data.distance_km, worstRange, 30);
+    data.temps_total = duree;
+    console.log("🚗 Durée du trajet :", data.temps_total);
 
     
     return data;
