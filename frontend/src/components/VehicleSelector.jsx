@@ -25,16 +25,18 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   }, [page, size, search]);
 
   useEffect(() => {
-    if (tempsTrajet) {
-      const hours = Math.floor(tempsTrajet);
-      const minutes = Math.round((tempsTrajet - hours) * 60); 
+    if (typeof trajet.temps_total === "number" && !isNaN(trajet.temps_total)) {
+      const hours = Math.floor(trajet.temps_total);
+      const minutes = Math.round((trajet.temps_total - hours) * 60);
 
-      // Formater l'heure et les minutes
-      const formattedTime = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
+      const formattedTime = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
       
       setTempsTotal(formattedTime);
+    } else {
+      setTempsTotal("--:--"); // Valeur par défaut en cas d'erreur
     }
   }, [tempsTrajet]);
+
 
   
   const handleSearchChange = (event) => {
@@ -84,7 +86,7 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
                 onChange={(e) => setTempsRecharge(e.target.value)}
               /> min
               <p><strong>Distance du trajet :</strong> {distance || "0"} km</p>
-              <p><strong>Temps total :</strong> {tempsTrajet || "--:--"} h</p>
+              <p><strong>Temps total :</strong> {trajet.temps_total || "--:--"} h</p>
               <button className="choose-button" onClick={handleChoisirVehicule}>✅ Choisir ce véhicule</button>
             </div>
           </div>
