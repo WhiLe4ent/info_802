@@ -23,6 +23,6 @@ public class CartographieController {
             return Map.of("error", "Les champs 'depart' et 'arrivee' sont requis.");
         }
 
-        return cartographieService.getItineraireOnly(depart, arrivee);
+        return cartographieService.calculerItineraireSansRecharges(depart, arrivee);
     }
 }
