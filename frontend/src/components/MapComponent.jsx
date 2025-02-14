@@ -6,145 +6,129 @@ import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
 import L from "leaflet";
 
 function MapComponent({ trajet }) {
-  const [coordinates, setCoordinates] = useState([]);
+  const [segments, setSegments] = useState([]);
   const [bornes, setBornes] = useState([]);
   const [mapCenter, setMapCenter] = useState([48.8566, 2.3522]);
   const [isLoading, setIsLoading] = useState(true);
-  const [departCoords, setDepartCoords] = useState(null);
-  const [arriveeCoords, setArriveeCoords] = useState(null);
+  const [depart, setDepart] = useState(null);
 
   useEffect(() => {
-
     if (trajet) {
-      setIsLoading(false); 
+      setIsLoading(false);
+      if (Array.isArray(trajet.segments)) {
+        const parsedSegments = trajet.segments.map(segment => {
+          if (segment.itineraire?.geometry?.coordinates) {
+            return segment.itineraire.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+          }
+          return [];
+        }).filter(segment => segment.length > 0);
 
-      // 📍 Récupérer l'itinéraire
-      if (trajet?.geometry?.coordinates) {
-        const itineraryCoordinates = trajet.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
-        setCoordinates(itineraryCoordinates);
+        setSegments(parsedSegments);
 
-        // 📍 Mettre à jour les coordonnées du départ et de l'arrivée
-        if (itineraryCoordinates.length > 1) {
-          setDepartCoords(itineraryCoordinates[0]); 
-          setArriveeCoords(itineraryCoordinates[itineraryCoordinates.length - 1]); 
+        // Déterminer le centre de la carte
+        const allCoords = parsedSegments.flat();
+        if (allCoords.length > 0) {
+          const latitudes = allCoords.map(coord => coord[0]);
+          const longitudes = allCoords.map(coord => coord[1]);
+          setMapCenter([
+            (Math.min(...latitudes) + Math.max(...latitudes)) / 2,
+            (Math.min(...longitudes) + Math.max(...longitudes)) / 2
+          ]);
         }
 
-        // 🗺 Déterminer le centre de la carte
-        const latitudes = itineraryCoordinates.map(coord => coord[0]);
-        const longitudes = itineraryCoordinates.map(coord => coord[1]);
-
-        const centerLat = (Math.min(...latitudes) + Math.max(...latitudes)) / 2;
-        const centerLon = (Math.min(...longitudes) + Math.max(...longitudes)) / 2;
-        setMapCenter([centerLat, centerLon]);
+        // Définir la ville de départ
+        if (parsedSegments.length > 0 && parsedSegments[0].length > 0) {
+          setDepart(parsedSegments[0][0]);
+        }
       }
 
-      // 🔋 Vérifier les bornes de recharge
-      if (Array.isArray(trajet?.bornes_recharge)) {
-        console.log("🔌 Bornes reçues :", trajet.bornes_recharge);
-        setBornes(trajet.bornes_recharge);
-      } else {
-        console.warn("⚠️ Aucune borne reçue ou mauvais format :", trajet?.bornes_recharge);
+      if (Array.isArray(trajet.bornes)) {
+        setBornes(trajet.bornes);
+        console.log("🔋 Bornes de recharge :", trajet.bornes);
       }
     }
   }, [trajet]);
+  
 
   return (
     <MapContainer center={mapCenter} zoom={6} className="leaflet-container">
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
 
-      {/* Affichage du message de chargement */}
-      {isLoading && (
-        <div className="loading-overlay">
-          <p>⏳ Chargement de l'itinéraire et des bornes...</p>
-        </div>
+      {isLoading && <div className="loading-overlay"><p>⏳ Chargement...</p></div>}
+
+      {depart && (
+        <Marker
+          position={depart}
+          icon={L.icon({
+            iconUrl: markerIconPng,
+            shadowUrl: markerShadowPng,
+            iconSize: [30, 50],
+            iconAnchor: [15, 50],
+            popupAnchor: [0, -50],
+            shadowSize: [50, 50]
+          })}
+        >
+          <Popup>
+            <div className="popup-content">
+              <h3>🚀 Départ</h3>
+              <p>📍 Ville de départ</p>
+            </div>
+          </Popup>
+        </Marker>
       )}
 
-      {/* Affichage du trajet */}
-      {coordinates.length > 0 && <Polyline positions={coordinates} color="blue" />}
+      {segments.map((segment, index) => (
+        <>
+          <Polyline key={index} positions={segment} color="blue" />
+          
+          {/* Marqueur à la fin du segment */}
+          {segment.length > 0 && (
+            <Marker
+              key={`segment-${index}`}
+              position={segment[segment.length - 1]}
+              icon={L.icon({
+                iconUrl: markerIconPng,
+                shadowUrl: markerShadowPng,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+              })}
+            >
+              <Popup>
+                <div className="popup-content">
+                  <h3>🔵 Fin du segment {index + 1}</h3>
+                  <p>📍 Point intermédiaire du trajet</p>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+        </>
+      ))}
 
-      {/* Marqueur de départ */}
-      {departCoords && (
+    {bornes.map((borne, index) => {
+      return (
         <Marker
-          key="depart"
-          position={departCoords}
+        key={`borne-${borne.lat}-${borne.lon}`} 
+        position={[borne.lat, borne.lon]}
           icon={L.icon({
             iconUrl: markerIconPng,
             shadowUrl: markerShadowPng,
             iconSize: [25, 41],
             iconAnchor: [12, 41],
-            popupAnchor: [1, -34], 
-            shadowSize: [41, 41], 
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
           })}
-          className="custom-marker"
         >
           <Popup>
             <div className="popup-content">
-              <h3>🚀 Départ</h3>
-              <p>📍 Point de départ de l'itinéraire</p>
+              <h3>⚡ Borne de recharge</h3>
+              <p>📍 Localisation : [{borne.lat}, {borne.lon}]</p>
             </div>
           </Popup>
         </Marker>
-      )}
-
-      {/* Marqueur d'arrivée */}
-      {arriveeCoords && (
-        <Marker
-          key="arrivee"
-          position={arriveeCoords}
-          icon={L.icon({
-            iconUrl: markerIconPng,
-            shadowUrl: markerShadowPng,
-            iconSize: [25, 41], 
-            iconAnchor: [12, 41], 
-            popupAnchor: [1, -34], 
-            shadowSize: [41, 41],
-          })}
-          className="custom-marker"
-        >
-          <Popup>
-            <div className="popup-content">
-              <h3>🏁 Arrivée</h3>
-              <p>📍 Point d'arrivée de l'itinéraire</p>
-            </div>
-          </Popup>
-        </Marker>
-      )}
-
-      {/* ⚡ Affichage des bornes de recharge */}
-      {bornes.length > 0 ? (
-        bornes.map((borne, index) => {
-          const coords = borne.geometry?.coordinates;
-          if (!coords || coords.length !== 2) return null;
-          const [lon, lat] = coords;
-
-          return (
-            <Marker
-              key={index}
-              position={[lat, lon]}
-              icon={L.icon({
-                iconUrl: markerIconPng,
-                shadowUrl: markerShadowPng,
-                iconSize: [25, 41], 
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41], 
-              })}
-              className="custom-marker"
-            >
-              <Popup>
-                <div className="popup-content">
-                  <h3>⚡ Borne de recharge</h3>
-                  <p><strong>📍 Adresse :</strong> {borne.fields?.n_station || "Non précisé"}</p>
-                  <p><strong>🔌 Type :</strong> {borne.fields?.type_prise || "Non précisé"}</p>
-                  <p><strong>💰 Accès :</strong> {borne.fields?.acces_recharge || "Non précisé"}</p>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })
-      ) : (
-        !isLoading && <p>⚠️ Aucune borne trouvée sur l'itinéraire.</p>
-      )}
+      );
+  })}
     </MapContainer>
   );
 }
