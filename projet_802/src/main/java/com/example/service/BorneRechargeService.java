@@ -32,7 +32,7 @@ public class BorneRechargeService {
         List<Map<String, Object>> cachedResult = cache.getIfPresent(cacheKey);
         if (cachedResult != null) return cachedResult;
 
-        String url = API_URL + "?dataset=bornes-irve&geofilter.distance=" + latitude + "," + longitude + "," + rayon;
+        String url = API_URL + "?dataset=bornes-irve&geofilter.distance=" + latitude + "," + longitude + "," + rayon + "&rows=1";
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
         if (response != null && response.containsKey("records")) {

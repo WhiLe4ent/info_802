@@ -95,6 +95,7 @@ public class CartographieService {
                     double distance = (double) segment.get("distance");
 
                     Map<String, Object> resultat = new HashMap<>();
+                    System.out.println("🔍 Response openrouteservice : " + response);
                     resultat.put("distance_km", distance / 1000);
                     resultat.put("geometry", geometry); 
 
