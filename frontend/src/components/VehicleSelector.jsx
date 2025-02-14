@@ -25,16 +25,26 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   }, [page, size, search]);
 
   useEffect(() => {
-    if (tempsTrajet) {
-      const hours = Math.floor(tempsTrajet);
-      const minutes = Math.round((tempsTrajet - hours) * 60); 
-
-      // Formater l'heure et les minutes
-      const formattedTime = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
-      
-      setTempsTotal(formattedTime);
-    }
+    const fetchTempsTrajet = async () => {
+      try {
+        const valeur = await tempsTrajet; 
+  
+        const numericValue = parseFloat(valeur);
+  
+        if (!isNaN(numericValue)) {
+          const hours = Math.floor(numericValue);
+          const minutes = Math.round((numericValue - hours) * 60);
+          const formattedTime = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
+          setTempsTotal(formattedTime);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération du temps de trajet :", error);
+      }
+    };
+  
+    fetchTempsTrajet();
   }, [tempsTrajet]);
+  
 
   
   const handleSearchChange = (event) => {
