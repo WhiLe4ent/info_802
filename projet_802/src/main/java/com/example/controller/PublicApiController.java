@@ -1,10 +1,7 @@
 package com.example.controller;
 
 import com.example.client.TrajetSoapClient;
-import com.example.model.CalculTrajetResponse;
-import com.example.service.BorneRechargeService;
 import com.example.service.CartographieService;
-import com.example.service.VehicleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +13,11 @@ import java.util.Map;
 public class PublicApiController {
 
     private final CartographieService cartographieService;
-    private final BorneRechargeService borneRechargeService;
     private final TrajetSoapClient trajetSoapClient;
 
-    public PublicApiController(CartographieService cartographieService, BorneRechargeService borneRechargeService,
-                               VehicleService vehicleService, TrajetSoapClient trajetSoapClient) {
+    public PublicApiController(CartographieService cartographieService,
+                               TrajetSoapClient trajetSoapClient) {
         this.cartographieService = cartographieService;
-        this.borneRechargeService = borneRechargeService;
         this.trajetSoapClient = trajetSoapClient;
     }
 
@@ -38,7 +33,7 @@ public class PublicApiController {
         String arriveeVille = (String) request.get("arriveeVille");
         String vehicleId = (String) request.get("vehicleId");
 
-        if (departVille == null || arriveeVille == null || vehicleId == null) {
+        if (departVille == null || arriveeVille == null ) {
             return ResponseEntity.badRequest().body(Map.of("error", "Les champs departVille, arriveeVille et vehicleId sont requis."));
         }
 
@@ -56,23 +51,33 @@ public class PublicApiController {
         System.out.println("   ➡️ Worst Range: " + worstRange);
 
         // 🔹 Récupérer l'itinéraire
-        Map<String, Object> itineraire = cartographieService.getItineraireOnly(departVille, arriveeVille);
-        if (itineraire.containsKey("error")) {
-            return ResponseEntity.badRequest().body(itineraire);
+        if (vehicleId == null) {
+            Map<String, Object> itineraire = cartographieService.getItineraireOnly(departVille, arriveeVille);
+            if (itineraire.containsKey("error")) {
+                return ResponseEntity.badRequest().body(itineraire);
+            }       
+            return ResponseEntity.ok(itineraire);
+
+        }else{
+
+            Map<String, Object> itineraire = cartographieService.calculerItineraireAvecRecharges(departVille, arriveeVille, worstRange);
+            if (itineraire.containsKey("error")) {
+                return ResponseEntity.badRequest().body(itineraire);
+            }
+            return ResponseEntity.ok(itineraire);
+
         }
 
-        // 🔹 Trouver les bornes de recharge nécessaires
-        List<Map<String, Object>> bornes = borneRechargeService.getBornesPourRecharge(itineraire, worstRange);
-        itineraire.put("bornes_recharge", bornes);
+        // // 🔹 Trouver les bornes de recharge nécessaires
+        // List<Map<String, Object>> bornes = borneRechargeService.getBornesPourRecharge(itineraire, worstRange);
+        // itineraire.put("bornes_recharge", bornes);
 
         // // 🔹 Calculer le temps de trajet via SOAP
-        double distance = (double) itineraire.get("distance_km");
-        double tempsRecharge = 30;
+        // double distance = (double) itineraire.get("distance_km");
         // CalculTrajetResponse trajetResponse = trajetSoapClient.calculerTrajet(distance, worstRange, tempsRecharge);
 
         // // 🔹 Ajouter le temps total dans la réponse
         // itineraire.put("temps_total", trajetResponse.getTempsTotal());
 
-        return ResponseEntity.ok(itineraire);
     }
 }

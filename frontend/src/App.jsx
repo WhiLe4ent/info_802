@@ -23,11 +23,12 @@ function App() {
     if (depart && arrivee) {
       if (!selectedVehicle) {
         console.log("📍 Recherche itinéraire simple :", depart, "➡️", arrivee);
-        getTrajet(depart, arrivee).then((data) => {
+        getTrajet(depart, arrivee).then(async (data) => {
           setTrajet(data);
           setDistance(data.distance_km);  
           setTempsTrajet(data.temps_total);  
-          console.log("✅ Temps trajet : ", data.temps_total);
+          const valeur = await data.temps_total;
+          console.log("✅ Temps trajet : ", valeur);
         });
       } else {
         console.log("🚗 Recherche itinéraire avec véhicule :", selectedVehicle.naming.make, selectedVehicle.naming.model);

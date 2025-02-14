@@ -10,6 +10,9 @@ export async function getTrajet(depart, arrivee, vehicleId) {
     });
     const data = await response.json();
     console.log("🚗 Trajet trouvé :", data);
+    const duree = getTrajetDuration(data.distance_km, worstRange, 30);
+    data.temps_total = duree;
+    console.log("🚗 Durée du trajet :", data.temps_total);
     return data;
   } catch (error) {
     console.error("❌ Erreur API trajet :", error);
