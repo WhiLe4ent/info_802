@@ -11,7 +11,7 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [autonomie, setAutonomie] = useState(""); 
   const [tempsRecharge, setTempsRecharge] = useState("30"); 
-  const [tempsTotal, setTempsTotal] = useState(trajet?.temps_total || ""); 
+  const [tempsTotal, setTempsTotal] = useState(trajet?.temps_total ?? "--:--");
 
 
   useEffect(() => {
@@ -25,17 +25,29 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
   }, [page, size, search]);
 
   useEffect(() => {
-    if (typeof trajet.temps_total === "number" && !isNaN(trajet.temps_total)) {
-      const hours = Math.floor(trajet.temps_total);
-      const minutes = Math.round((trajet.temps_total - hours) * 60);
-
-      const formattedTime = `${hours}h${minutes < 10 ? '0' : ''}${minutes}`;
-      
-      setTempsTotal(formattedTime);
-    } else {
-      setTempsTotal("--:--"); // Valeur par défaut en cas d'erreur
-    }
-  }, [tempsTrajet]);
+    const fetchTempsTrajet = async () => {
+      try {
+        // Attendre la résolution si c'est une promesse
+        const valeur = await tempsTrajet; 
+  
+        // S'assurer que c'est un nombre
+        const numericValue = parseFloat(valeur);
+  
+        if (!isNaN(numericValue)) {
+          const hours = Math.floor(numericValue);
+          const minutes = Math.round((numericValue - hours) * 60);
+          const formattedTime = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
+          setTempsTotal(formattedTime);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération du temps de trajet :", error);
+      }
+    };
+  
+    fetchTempsTrajet();
+  }, [tempsTrajet]); 
+  
+  
 
 
   
@@ -86,7 +98,7 @@ function VehicleSelector({ onSelect, trajet, distance, tempsTrajet }) {
                 onChange={(e) => setTempsRecharge(e.target.value)}
               /> min
               <p><strong>Distance du trajet :</strong> {distance || "0"} km</p>
-              <p><strong>Temps total :</strong> {trajet.temps_total || "--:--"} h</p>
+              <p><strong>Temps total :</strong> {tempsTotal || "--:--"} h</p>
               <button className="choose-button" onClick={handleChoisirVehicule}>✅ Choisir ce véhicule</button>
             </div>
           </div>

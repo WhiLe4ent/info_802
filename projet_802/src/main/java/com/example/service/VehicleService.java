@@ -8,6 +8,7 @@ import com.example.model.Vehicle.Naming;
 import com.example.model.Vehicle.Range;
 import com.example.response.VehicleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -21,18 +22,33 @@ public class VehicleService {
 
     private static final String CHARGETRIP_API_URL = "https://api.chargetrip.io/graphql";
 
+    // private final WebClient webClient;
+
+    // public VehicleService(
+    //         WebClient.Builder webClientBuilder,
+    //         @Value("${CHARGETRIP_API_URL}") String apiUrl,
+    //         @Value("${CHARGETRIP_CLIENT_ID}") String clientId,
+    //         @Value("${CHARGETRIP_APP_ID}") String appId) {
+
+    //     this.webClient = webClientBuilder
+    //             .baseUrl(apiUrl)
+    //             .defaultHeader("x-client-id", clientId)
+    //             .defaultHeader("x-app-id", appId)
+    //             .defaultHeader("Content-Type", "application/json")
+    //             .build();
+    // }
+
     private final WebClient webClient;
 
     @Autowired
     public VehicleService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
-                .baseUrl(CHARGETRIP_API_URL)
+                .baseUrl("https://api.chargetrip.io/graphql")
                 .defaultHeader("x-client-id", "67ab59ed4802aaa070546d8c")
                 .defaultHeader("x-app-id", "67ab59ed4802aaa070546d8e")
                 .defaultHeader("Content-Type", "application/json")
                 .build();
     }
-
     public List<Vehicle> getAllVehicles(int page, int size, String search) {
         // Requête GraphQL avec des variables
         String query = """

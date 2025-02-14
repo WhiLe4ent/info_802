@@ -69,6 +69,53 @@ public class CartographieService {
         return Map.of("error", "Itinéraire non trouvé");
     }
 
+
+    public Map<String, Object> calculerItineraireSansRecharges(String depart, String arrivee) {
+        // Récupérer les informations d'itinéraire
+        Map<String, Object> itineraireData = getItineraireOnly(depart, arrivee);
+    
+        // Vérifier si la géométrie existe et a un format correct
+        if (!itineraireData.containsKey("geometry") || !(itineraireData.get("geometry") instanceof Map)) {
+            throw new RuntimeException("Format d'itinéraire invalide !");
+        }
+    
+        // Récupérer la géométrie et les coordonnées
+        Map<String, Object> geometry = (Map<String, Object>) itineraireData.get("geometry");
+        if (!geometry.containsKey("coordinates") || !(geometry.get("coordinates") instanceof List<?>)) {
+            throw new RuntimeException("Format des coordonnées invalide !");
+        }
+    
+        // Extraire les coordonnées de l'itinéraire
+        List<List<Double>> coordinates = (List<List<Double>>) geometry.get("coordinates");
+        List<Map<String, Double>> itineraire = new ArrayList<>();
+    
+        for (List<Double> coord : coordinates) {
+            if (coord.size() < 2) continue;
+            itineraire.add(Map.of("lat", coord.get(1), "lon", coord.get(0)));
+        }
+    
+        // Récupérer les points de départ et d'arrivée
+        Map<String, Double> departPoint = itineraire.get(0);
+        Map<String, Double> destinationFinale = itineraire.get(itineraire.size() - 1);
+    
+        // Créer le premier segment
+        Map<String, Object> segment = new HashMap<>();
+        segment.put("depart", departPoint);
+        segment.put("arrivee", destinationFinale);
+        segment.put("distance_km", itineraireData.get("distance_km"));
+        segment.put("itineraire", Map.of(
+            "distance_km", itineraireData.get("distance_km"),
+            "geometry", geometry
+        ));
+    
+        // Renvoyer les résultats
+        return Map.of(
+            "segments", List.of(segment), 
+            "distance_km", itineraireData.get("distance_km")
+        );
+    }
+    
+
     public Map<String, Object> getItineraireCoordonee(Map<String, Double> departCoords, Map<String, Double> arriveeCoords) {
         if (departCoords == null || arriveeCoords == null || !departCoords.containsKey("lat") || !departCoords.containsKey("lon") ||
             !arriveeCoords.containsKey("lat") || !arriveeCoords.containsKey("lon")) {
