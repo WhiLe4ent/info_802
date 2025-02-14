@@ -147,7 +147,7 @@ public class CartographieService {
         List<Map<String, Object>> segments = new ArrayList<>();
         List<Map<String, Double>> bornesUtilisees = new ArrayList<>();
     
-        double autonomieRestante = autonomieVehicule * 0.8; // 90% de l'autonomie initiale
+        double autonomieRestante = autonomieVehicule * 0.8; 
         double distanceTotale = 0;
         double distanceRestante = borneRechargeService.calculerDistance(
             itineraire.get(0).get("lat"), itineraire.get(0).get("lon"),
@@ -171,11 +171,10 @@ public class CartographieService {
             // Mettre à jour la distance restante
             double distanceParcourue = borneRechargeService.calculerDistance(departPoint.get("lat"), departPoint.get("lon"), borneRecharge.get("lat"), borneRecharge.get("lon"));
             distanceTotale += distanceParcourue;
-            distanceRestante -= distanceParcourue; // Réduire la distance restante
+            distanceRestante -= distanceParcourue; 
             System.out.println("🔋 distance restante: " + distanceRestante + " km");
 
             departPoint = borneRecharge;
-            // distanceRestante = borneRechargeService.calculerDistance(borneRecharge.get("lat"), borneRecharge.get("lon"), destinationFinale.get("lat"), destinationFinale.get("lon"));
         }
     
         // Ajouter le dernier segment

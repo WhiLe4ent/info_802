@@ -13,8 +13,6 @@ function MapComponent({ trajet }) {
   const [depart, setDepart] = useState(null);
 
   useEffect(() => {
-    console.log("📡 Trajet reçu dans MapComponent :", trajet);
-
     if (trajet) {
       setIsLoading(false);
       if (Array.isArray(trajet.segments)) {

@@ -13,7 +13,6 @@ function App() {
   const [distance, setDistance] = useState(null); 
   const [tempsTrajet, setTempsTrajet] = useState(null); 
 
-  // 🏁 Met à jour `depart` et `arrivee` à chaque modification de `LocationInput`
   const handleDepartArriveeChange = (depart, arrivee) => {
     setDepart(depart);
     setArrivee(arrivee);
